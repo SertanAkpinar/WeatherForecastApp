@@ -1,1 +1,1 @@
-pip install python-dotenv
+pip install python-dotenv flask flask-cors
