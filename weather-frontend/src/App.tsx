@@ -1,101 +1,112 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { format } from 'date-fns';
 
-interface WeatherForecast {
-  date: string;
-  min_temp: number;
-  max_temp: number;
-  rain_chance: number;
-  wind_speed: number;
+interface WeatherData {
+    date: string;
+    min_temp: number;
+    max_temp: number;
+    rain_chance: number;
+    wind_speed: number;
 }
 
-function App() {
-  const [city, setCity] = useState<string>('');           // Stadt
-  const [startDate, setStartDate] = useState<string>(''); // Startdatum
-  const [endDate, setEndDate] = useState<string>('');     // Enddatum
-  const [forecast, setForecast] = useState<WeatherForecast[] | null>(null); // Wettervorhersage
-  const [error, setError] = useState<string | null>(null); // Fehler-Handling
+const App: React.FC = () => {
+    const [location, setLocation] = useState<string>('');
+    const [startDate, setStartDate] = useState<string>('');
+    const [endDate, setEndDate] = useState<string>('');
+    const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = async () => {
-    // Überprüfe, ob Stadt und Datumswerte vorhanden sind
-    if (!city || !startDate || !endDate) {
-      setError("Bitte Stadt, Startdatum und Enddatum eingeben");
-      return;
-    }
+    const fetchWeather = async () => {
+        if (!location || !startDate || !endDate) {
+            setError('Bitte gib einen Standort, Startdatum und Enddatum ein.');
+            return;
+        }
 
-    try {
-      setError(null); // Setze den Fehler zurück
-      const response = await fetch(
-        `http://localhost:5000/weather?city=${city}&startDate=${startDate}&endDate=${endDate}`
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.error);
-        return;
-      }
+        try {
+            const response = await axios.get('http://localhost:5000/weather', {
+                params: {
+                    location,
+                    start: startDate,
+                    end: endDate,
+                },
+            });
+            setWeatherData(response.data);
+            setError(null);
+        } catch (err) {
+            setError('Fehler beim Abrufen der Wetterdaten.');
+            setWeatherData([]);
+        }
+    };
 
-      const data: WeatherForecast[] = await response.json();
-      setForecast(data);
-    } catch (error) {
-      console.error('Fehler beim Abrufen der Wettervorhersage:', error);
-      setError('Ein Fehler ist aufgetreten');
-    }
-  };
-
-  return (
-    <div className="App">
-      <h1>Wettervorhersage</h1>
-
-      {/* Eingabe für die Stadt */}
-      <div>
-        <input
-          type="text"
-          placeholder="Stadt eingeben"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-        />
-      </div>
-
-      {/* Auswahl für das Startdatum */}
-      <div>
-        <label>Von: </label>
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-        />
-      </div>
-
-      {/* Auswahl für das Enddatum */}
-      <div>
-        <label>Bis: </label>
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-        />
-      </div>
-
-      {/* Button, um die Suche auszulösen */}
-      <button onClick={handleSearch}>Suchen</button>
-
-      {/* Fehlermeldung anzeigen */}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {/* Wettervorhersage anzeigen */}
-      {forecast && (
-        <div>
-          <h2>Vorhersage für {city}</h2>
-          <ul>
-            {forecast.map((day, index) => (
-              <li key={index}>
-                {day.date}: Min {day.min_temp}°C, Max {day.max_temp}°C, Regen {day.rain_chance}%, Wind {day.wind_speed} km/h
-              </li>
-            ))}
-          </ul>
+    return (
+        <div className="container" style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+            <h1 className="mb-4 text-center">Wettervorhersage</h1>
+            <div className="d-flex align-items-center mb-3 gap-3">
+              <div className="flex-fill">
+                  <label htmlFor="location" className="form-label">Standort</label>
+                  <input
+                      id="location"
+                      type="text"
+                      className="form-control"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder="Gib einen Standort ein"
+                  />
+              </div>
+              <div>
+                  <label htmlFor="startDate" className="form-label">Startdatum</label>
+                  <input
+                      id="startDate"
+                      type="date"
+                      className="form-control"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                  />
+              </div>
+              <div>
+                  <label htmlFor="endDate" className="form-label">Enddatum</label>
+                  <input
+                      id="endDate"
+                      type="date"
+                      className="form-control"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                  />
+              </div>
+              <button className="btn btn-primary" onClick={fetchWeather}>
+                  Wetter abrufen
+              </button>
+          </div>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {weatherData.length > 0 && (
+                <div className="row">
+                    {weatherData.map((day) => (
+                        <div className="col-md-4 mb-4" key={day.date}>
+                            <div className="card">
+                                <div className="card-body">
+                                    <h5 className="card-title">{format(new Date(day.date), 'dd.MM.yyyy')}</h5>
+                                    <p className="card-text">
+                                        <strong>Minimale Temperatur:</strong> {day.min_temp}°C
+                                    </p>
+                                    <p className="card-text">
+                                        <strong>Maximale Temperatur:</strong> {day.max_temp}°C
+                                    </p>
+                                    <p className="card-text">
+                                        <strong>Regenwahrscheinlichkeit:</strong> {day.rain_chance}%
+                                    </p>
+                                    <p className="card-text">
+                                        <strong>Windgeschwindigkeit:</strong> {day.wind_speed} km/h
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
-}
+    );
+};
 
 export default App;
