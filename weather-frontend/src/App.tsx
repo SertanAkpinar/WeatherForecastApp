@@ -16,6 +16,7 @@ const App: React.FC = () => {
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
     const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
+    const [email, setEmail] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
 
     const fetchWeather = async () => {
@@ -40,45 +41,64 @@ const App: React.FC = () => {
         }
     };
 
+    const sendEmail = async () => {
+        if (!email || !location) {
+            setError('Bitte gib eine E-Mail-Adresse ein.');
+            return;
+        }
+
+        try {
+            await axios.post('http://localhost:5000/send-email', {
+                email,
+                location,
+                weather_data: weatherData,
+            });
+            setError(null);
+            alert('Wettervorhersage erfolgreich gesendet!');
+        } catch (err) {
+            setError('Fehler beim Senden der E-Mail.');
+        }
+    };
+
     return (
         <div className="container" style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
             <h1 className="mb-4 text-center">Wettervorhersage</h1>
             <div className="d-flex align-items-center mb-3 gap-3">
-              <div className="flex-fill">
-                  <label htmlFor="location" className="form-label">Standort</label>
-                  <input
-                      id="location"
-                      type="text"
-                      className="form-control"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      placeholder="Gib einen Standort ein"
-                  />
-              </div>
-              <div>
-                  <label htmlFor="startDate" className="form-label">Startdatum</label>
-                  <input
-                      id="startDate"
-                      type="date"
-                      className="form-control"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                  />
-              </div>
-              <div>
-                  <label htmlFor="endDate" className="form-label">Enddatum</label>
-                  <input
-                      id="endDate"
-                      type="date"
-                      className="form-control"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                  />
-              </div>
-              <button className="btn btn-primary" onClick={fetchWeather}>
-                  Wetter abrufen
-              </button>
-          </div>
+                <div className="flex-fill">
+                    <label htmlFor="location" className="form-label">Standort</label>
+                    <input
+                        id="location"
+                        type="text"
+                        className="form-control"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="Gib einen Standort ein"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="startDate" className="form-label">Startdatum</label>
+                    <input
+                        id="startDate"
+                        type="date"
+                        className="form-control"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                    />
+                </div>
+                <div>
+                    <label htmlFor="endDate" className="form-label">Enddatum</label>
+                    <input
+                        id="endDate"
+                        type="date"
+                        className="form-control"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                    />
+                </div>
+                <button className="btn btn-primary" onClick={fetchWeather}>
+                    Wetter abrufen
+                </button>
+            </div>
             {error && <p style={{ color: 'red' }}>{error}</p>}
             {weatherData.length > 0 && (
                 <div className="row">
@@ -103,6 +123,22 @@ const App: React.FC = () => {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+            {weatherData.length > 0 && (
+                <div className="mb-3">
+                    <label htmlFor="email" className="form-label">E-Mail-Adresse</label>
+                    <input
+                        id="email"
+                        type="email"
+                        className="form-control"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Gib eine E-Mail-Adresse ein"
+                    />
+                    <button className="btn btn-success mt-3" onClick={sendEmail}>
+                        Wettervorhersage per E-Mail senden
+                    </button>
                 </div>
             )}
         </div>
