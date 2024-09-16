@@ -1,8 +1,14 @@
 ## Voraussetzung damit das basic Verzeichnis funktioniert:
-in der key.env: 
+- eine key.env Datei erstellen in dem WeatherForecastApp Verzeichnis
 - persönlichen API_KEY von https://www.visualcrossing.com eingeben
 - E_MAIL Adresse eingeben von der versendet werden soll
 - CODE Passwort der Email Adresse eingeben
+
+sollte so aussehen:
+API_KEY=-DEIN_KEY_DER_SEITE
+E_MAIL=DEINE_EMAIL_ADRESSE
+CODE=DEIN_PASSWORT
+
 wichtig: Es darf kein Email Server mit 2 Faktor Authentifizierung sein
 - in Zeile 76 kann man die Email Adresse des Empfängers einfügen. (Default ist, das der Versender die Mail selber bekommt.)
 
