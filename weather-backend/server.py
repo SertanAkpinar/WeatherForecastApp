@@ -14,7 +14,6 @@ load_dotenv('../key.env')
 API_KEY = os.getenv('API_KEY')
 BASE_URL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'
 
-# Endpoint to get weather data
 @app.route('/weather', methods=['GET'])
 def get_weather():
     location = request.args.get('location')
@@ -82,18 +81,17 @@ def get_weather():
 
     return jsonify(result)
 
-# Endpoint to send weather data via email
 @app.route('/send-email', methods=['POST'])
 def send_email():
     data = request.json
     to_email = data.get('email')
     location = data.get('location')
     weather_data = data.get('weather_data')
+    include_chart = data.get('include_chart', False)
 
     if not to_email or not location or not weather_data:
         return jsonify({"error": "Email, location, and weather data are required"}), 400
 
-    # Prepare email content
     email_body = f"Wettervorhersage für {location}:\n\n"
     for day in weather_data:
         email_body += f"Datum: {day['date']}\n"
@@ -116,8 +114,14 @@ def send_email():
             email_body += f"Wetterbedingungen: {day['conditions']}\n"
         
         email_body += "------------------------------\n"
+    
+    if include_chart:
+        email_body += "\nTemperaturverlauf:\n"
+        email_body += "Datum      | Max Temp (°C) | Min Temp (°C)\n"
+        email_body += "---------------------------------------\n"
+        for day in weather_data:
+            email_body += f"{day['date']} | {day['max_temp']}       | {day['min_temp']}\n"
 
-    # Send email
     from_email = os.getenv('E_MAIL')
     from_password = os.getenv('CODE')
     subject = f"Wettervorhersage für {location}"
