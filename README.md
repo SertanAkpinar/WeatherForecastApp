@@ -5,9 +5,9 @@
 - CODE Passwort der Email Adresse eingeben
 
 sollte so aussehen:
-API_KEY=-DEIN_KEY_DER_SEITE
-E_MAIL=DEINE_EMAIL_ADRESSE
-CODE=DEIN_PASSWORT
+- API_KEY=-DEIN_KEY_DER_SEITE
+- E_MAIL=DEINE_EMAIL_ADRESSE
+- CODE=DEIN_PASSWORT
 
 wichtig: Es darf kein Email Server mit 2 Faktor Authentifizierung sein
 - in Zeile 76 kann man die Email Adresse des Empfängers einfügen. (Default ist, das der Versender die Mail selber bekommt.)
