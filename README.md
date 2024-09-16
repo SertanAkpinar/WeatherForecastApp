@@ -16,7 +16,7 @@ python CodingChallenge.py
 - nodejs muss auf dem PC installiert sein
 
 Außerdem müssen diese Befehle im Terminal eingegeben werden:
-- pip install python-dotenv flask flask-cors
+- pip install python-dotenv flask flask-cors requests
 - npm install axios bootstrap date-fns chart.js react-chartjs-2
 Damit die nötigen Bibliotheken installiert werden.
 
